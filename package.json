@@ -2,8 +2,7 @@
   "name": "MessagingMountineer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "main": "MessagingServer.js",
   "scripts": {
     "start": "nodemon MessagingServer"
   },
