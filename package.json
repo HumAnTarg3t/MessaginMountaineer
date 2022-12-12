@@ -1,7 +1,7 @@
 {
   "name": "MessagingMountineer",
   "version": "1.0.0",
-  "description": "",
+  "description": "App for chatting",
   "main": "MessagingServer.js",
   "scripts": {
     "start": "nodemon MessagingServer"
@@ -11,8 +11,8 @@
     "url": "git+https://github.com/HumAnTarg3t/MessaginMountaineer.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "HuManTarg3t",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/HumAnTarg3t/MessaginMountaineer/issues"
   },
