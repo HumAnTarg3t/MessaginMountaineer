@@ -9,9 +9,16 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  socket.on("main Chat", (msg) => {
-    io.emit("main Chat", msg);
+  socket.on("main Chat", (msg, room) => {
     console.log(msg);
+    console.log(room);
+    if (room == null) {
+      io.emit("main Chat", msg);
+      console.log("123");
+    } else {
+      socket.to(room).emit("main Chat", msg);
+      console.log("12qweqwe3");
+    }
   });
 });
 

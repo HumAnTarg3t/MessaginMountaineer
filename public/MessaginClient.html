@@ -11,6 +11,7 @@
       <form id="Channel" action="">
         <input id="chooseChannel" autocomplete="off" /><button>Join</button>
       </form>
+
       <form id="form" action="">
         <input id="inputMessage" autocomplete="off" /><button>Send</button>
       </form>
@@ -18,27 +19,49 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io();
+      let socket = io();
 
-      var messages = document.getElementById("messages");
-      var form = document.getElementById("form");
-      var inputMessage = document.getElementById("inputMessage");
-
-      // Sender melding til namespacet "main Chat"
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (inputMessage.value) {
-          socket.emit("main Chat", `${socket.id}: ${inputMessage.value}`);
-          inputMessage.value = "";
-        }
+      // Når client kobler seg på, så vil det vise hvilken id den har
+      socket.on("connect", () => {
+        let item = document.createElement("li");
+        item.textContent = `Logged on as ${socket.id}`;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
-      // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
-      socket.on("main Chat", function (msg) {
-        var item = document.createElement("li");
+      let messages = document.getElementById("messages");
+      let sendMsg = document.getElementById("form");
+      let getChannel = document.getElementById("Channel");
+      let channelInner = document.getElementById("chooseChannel");
+      let mainChannel = "main Chat";
+      let inputMessage = document.getElementById("inputMessage");
+
+      const displayMsgLocally = (msg) => {
+        console.log(`Client is listening on ${mainChannel}`);
+        let item = document.createElement("li");
         item.textContent = msg;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+      };
+
+      // Sender melding til namespacet "main Chat"
+      sendMsg.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (inputMessage.value) {
+          socket.emit(mainChannel, `${socket.id}: ${inputMessage.value}`);
+          inputMessage.value = "";
+          console.log(`Client sending to ${mainChannel}`);
+        }
+      });
+      getChannel.addEventListener("submit", (e) => {
+        e.preventDefault();
+        mainChannel = channelInner.value;
+        console.log(`Client changed room to ${mainChannel}`);
+      });
+
+      // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
+      socket.on(mainChannel, (msg) => {
+        displayMsgLocally(msg);
       });
     </script>
   </body>
