@@ -31,9 +31,10 @@
       let messages = document.getElementById("messages");
       let sendMsg = document.getElementById("form");
       let getChannel = document.getElementById("Channel");
-      let roomInner = document.getElementById("chooseChannel");
+      let roomInner;
       let mainChannel = "main Chat";
       let inputMessage = document.getElementById("inputMessage");
+      let roomFromUser;
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       const displayMsgLocally = (msg) => {
@@ -63,22 +64,20 @@
       sendMsg.addEventListener("submit", (e) => {
         e.preventDefault();
         displayMsgLocally(`${socket.id}: ${inputMessage.value}`);
-        sendMessagetoServer(inputMessage.value, chooseChannel.value);
+        sendMessagetoServer(inputMessage.value, roomInner);
         console.log(inputMessage.value);
       });
-
-      // getChannel.addEventListener("submit", (e) => {
-      //   e.preventDefault();
-      //   mainChannel = channelInner.value;
-      //   console.log(`Client changed room to ${mainChannel}`);
-      // });
+      getChannel.addEventListener("click", (e) => {
+        e.preventDefault();
+        roomInner = chooseChannel.value;
+      });
 
       // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
       socket.on(mainChannel, (msg) => {
         displayMsgLocally(`${msg}`);
       });
-      // socket.on(chooseChannel.value, (msg) => {
-      //   console.log(chooseChannel.value);
+      // socket.on(roomInner, (msg) => {
+      //   console.log(roomInner);
       //   displayMsgLocally(msg);
       // });
     </script>
