@@ -24,6 +24,18 @@ io.on("connection", (socket) => {
       console.log(`Melding sendt i ${room}`);
     }
   });
+  socket.on("Room-Joined", (room, id) => {
+    socket.join(room);
+    console.log(`${id} joined ${room}`);
+  });
+  // socket.on("Room-disconnect", (room, id) => {
+  //   socket.disconnect(room, true);
+  //   console.log(room);
+  // });
+  socket.on("Leave-Room", (room) => {
+    socket.leave(room);
+    console.log(2 + room);
+  });
 });
 
 http.listen(port, () => {

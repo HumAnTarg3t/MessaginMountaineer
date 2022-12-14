@@ -9,10 +9,17 @@
     <ul id="messages"></ul>
     <div class="forms">
       <form id="Channel" action="">
-        <input id="chooseChannel" autocomplete="off" /><button>Join</button>
+        <input
+          id="chooseChannel"
+          class="chooseChannel"
+          autocomplete="off"
+        /><button>Join</button>
       </form>
-      <form id="form" action="">
+      <form id="form" class="form" action="">
         <input id="inputMessage" autocomplete="off" /><button>Send</button>
+      </form>
+      <form id="disconnect" class="disconnect">
+        <button id="disconnect-btn">Disconnect</button>
       </form>
     </div>
 
@@ -34,7 +41,7 @@
       let roomInner;
       let mainChannel = "main Chat";
       let inputMessage = document.getElementById("inputMessage");
-      let roomFromUser;
+      let disconnect = document.getElementById("disconnect");
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       const displayMsgLocally = (msg) => {
@@ -67,19 +74,24 @@
         sendMessagetoServer(inputMessage.value, roomInner);
         console.log(inputMessage.value);
       });
-      getChannel.addEventListener("click", (e) => {
+      // Setter hvilken room som skal brukes
+      getChannel.addEventListener("submit", (e) => {
         e.preventDefault();
         roomInner = chooseChannel.value;
+        socket.emit("Room-Joined", roomInner, socket.id);
+      });
+
+      disconnect.addEventListener("submit", (e) => {
+        e.preventDefault();
+        socket.emit("Leave-Room", roomInner);
+        roomInner = "";
+        console.log(1);
       });
 
       // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
       socket.on(mainChannel, (msg) => {
         displayMsgLocally(`${msg}`);
       });
-      // socket.on(roomInner, (msg) => {
-      //   console.log(roomInner);
-      //   displayMsgLocally(msg);
-      // });
     </script>
   </body>
 </html>
