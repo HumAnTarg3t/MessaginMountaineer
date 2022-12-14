@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO chat</title>
+    <title>MessaginMountaineer</title>
     <link type="text/css" rel="stylesheet" href="styles.css" />
   </head>
 
@@ -11,7 +11,6 @@
       <form id="Channel" action="">
         <input id="chooseChannel" autocomplete="off" /><button>Join</button>
       </form>
-
       <form id="form" action="">
         <input id="inputMessage" autocomplete="off" /><button>Send</button>
       </form>
@@ -21,7 +20,7 @@
     <script>
       let socket = io();
 
-      // Når client kobler seg på, så vil det vise hvilken id den har
+      // Når client kobler seg på, så vil det vise hvilken id den har.
       socket.on("connect", () => {
         let item = document.createElement("li");
         item.textContent = `Logged on as ${socket.id}`;
@@ -36,6 +35,7 @@
       let mainChannel = "main Chat";
       let inputMessage = document.getElementById("inputMessage");
 
+      // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       const displayMsgLocally = (msg) => {
         let item = document.createElement("li");
         item.textContent = msg;
@@ -46,10 +46,12 @@
 
       const sendMessagetoServer = (msg, room) => {
         console.log(`Room: ${room}`);
+        // send melding til alle om msg ikke er tom og room ikke er brukt
         if (msg && room == "") {
           socket.emit(mainChannel, `${socket.id}: ${msg}`);
           inputMessage.value = "";
           console.log(`Client sending to ${mainChannel}`);
+          // send melding til main chat og hvilket room som skal blir brukt
         } else {
           socket.emit(mainChannel, `${socket.id}: ${msg}`, room);
           inputMessage.value = "";

@@ -9,12 +9,16 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  // Lytter på alle meldinger som kommer til "main Chat"
   socket.on("main Chat", (msg, room) => {
     console.log(msg);
     console.log(room);
+    // Om "room" ikke er med i meldingen fra klinet, send melding til alle som lytter på mainchat
     if (room == null) {
+      // socket.broadcast.emit sender ikke melding tilbake til den som sendte meldingen først
       socket.broadcast.emit("main Chat", msg);
       console.log("Melding sendt i Main Chat");
+      // om melding inneholder en room så send melding til kun det roomet
     } else {
       socket.to(room).emit("main Chat", msg);
       console.log(`Melding sendt i ${room}`);
