@@ -13,11 +13,11 @@ io.on("connection", (socket) => {
     console.log(msg);
     console.log(room);
     if (room == null) {
-      io.emit("main Chat", msg);
-      console.log("123");
+      socket.broadcast.emit("main Chat", msg);
+      console.log("Melding sendt i Main Chat");
     } else {
       socket.to(room).emit("main Chat", msg);
-      console.log("12qweqwe3");
+      console.log(`Melding sendt i ${room}`);
     }
   });
 });
