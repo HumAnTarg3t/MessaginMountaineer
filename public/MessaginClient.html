@@ -32,9 +32,8 @@
 
       // Når client kobler seg på, så vil det vise hvilken id den har.
       socket.on("connect", () => {
-        let item = document.createElement("li");
-        item.textContent = `Logged on as ${socket.id}`;
-        messages.appendChild(item);
+        const loggedOnMsg = `Logged on as ${socket.id}`;
+        displayMsgLocally(loggedOnMsg);
         window.scrollTo(0, document.body.scrollHeight);
       });
 
@@ -46,6 +45,7 @@
       let inputMessage = document.getElementById("inputMessage");
       let disconnect = document.getElementById("disconnect");
       let getRooms = document.getElementById("rooms");
+      let roomsArray = [socket.id] || false;
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       const displayMsgLocally = (msg, room) => {
@@ -75,10 +75,9 @@
         }
       };
 
-      const fetchChannelAndJoinAnddisconnectMain = () => {
+      const fetchChannelAndJoin = () => {
         roomInner = chooseChannel.value;
         socket.emit("Room-Joined", roomInner, socket.id);
-        socket.emit("Leave-Room", mainChannel);
         console.log(`Bruker ${socket.id} har joinet: ${roomInner}`);
       };
 
@@ -93,12 +92,13 @@
         e.preventDefault();
         displayMsgLocally(`${socket.id}: ${inputMessage.value}`);
         sendMessagetoServer(inputMessage.value, roomInner);
-        console.log(inputMessage.value);
+        console.log("Message " + inputMessage.value);
       });
+
       // Setter hvilken room som skal brukes
       getChannel.addEventListener("submit", (e) => {
         e.preventDefault();
-        fetchChannelAndJoinAnddisconnectMain();
+        fetchChannelAndJoin();
         getAllMyJoinedRooms();
       });
 
@@ -107,15 +107,26 @@
         leaveChannelAndClearRoomInner();
         console.log(1);
       });
+
       getRooms.addEventListener("submit", (e) => {
         e.preventDefault();
         getAllMyJoinedRooms();
       });
+
       // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
       socket.on(mainChannel, (msg, room) => {
-        displayMsgLocally(msg, room);
+        try {
+          console.log("test" + roomsArray);
+          if (roomsArray.includes(room)) {
+            displayMsgLocally(msg, room);
+          }
+        } catch (error) {
+          console.log("lmaso");
+        }
       });
+
       socket.on("get-rooms-user", (data) => {
+        roomsArray = data;
         const roomsMsgLocally = `Rooms joined ${data}`;
         displayMsgLocally(roomsMsgLocally);
       });

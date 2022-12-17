@@ -39,10 +39,10 @@ io.on("connection", (socket) => {
   socket.on("get-rooms", () => {
     let arrayOfRooms = [];
     const getRoomForUser = socket.rooms;
-    for (const entry of getRoomForUser.entries()) {
+    for (const entry of getRoomForUser) {
       arrayOfRooms.push(entry);
     }
-    console.log(getRoomForUser.set);
+    console.log(arrayOfRooms);
     socket.emit("get-rooms-user", arrayOfRooms);
   });
 });
