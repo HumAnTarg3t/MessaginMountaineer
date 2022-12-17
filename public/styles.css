@@ -3,6 +3,7 @@ body {
   padding-bottom: 3rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
+  background-color: darkslategray;
 }
 
 .forms {
@@ -35,6 +36,9 @@ body {
 
 .disconnect {
   grid-area: disconnect;
+  justify-self: right;
+}
+.rooms_btn {
   justify-self: right;
 }
 

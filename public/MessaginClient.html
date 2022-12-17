@@ -19,7 +19,10 @@
         <input id="inputMessage" autocomplete="off" /><button>Send</button>
       </form>
       <form id="disconnect" class="disconnect">
-        <button id="disconnect-btn">Disconnect</button>
+        <button id="disconnect_btn">Disconnect</button>
+      </form>
+      <form id="rooms" class="rooms_btn">
+        <button id="rooms_btn">Rooms</button>
       </form>
     </div>
 
@@ -42,14 +45,19 @@
       let mainChannel = "main Chat";
       let inputMessage = document.getElementById("inputMessage");
       let disconnect = document.getElementById("disconnect");
+      let getRooms = document.getElementById("rooms");
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
-      const displayMsgLocally = (msg) => {
+      const displayMsgLocally = (msg, room) => {
         let item = document.createElement("li");
         item.textContent = msg;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         console.log(`Client is listening on ${mainChannel}`);
+      };
+
+      const getAllMyJoinedRooms = () => {
+        socket.emit("get-rooms");
       };
 
       const sendMessagetoServer = (msg, room) => {
@@ -67,6 +75,19 @@
         }
       };
 
+      const fetchChannelAndJoinAnddisconnectMain = () => {
+        roomInner = chooseChannel.value;
+        socket.emit("Room-Joined", roomInner, socket.id);
+        socket.emit("Leave-Room", mainChannel);
+        console.log(`Bruker ${socket.id} har joinet: ${roomInner}`);
+      };
+
+      const leaveChannelAndClearRoomInner = () => {
+        socket.emit("Leave-Room", roomInner, socket.id);
+        roomInner = "";
+        console.log(`Bruker ${socket.id} har disconnected fra: ${roomInner}`);
+      };
+
       // Sender melding til namespacet "main Chat"
       sendMsg.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -77,20 +98,26 @@
       // Setter hvilken room som skal brukes
       getChannel.addEventListener("submit", (e) => {
         e.preventDefault();
-        roomInner = chooseChannel.value;
-        socket.emit("Room-Joined", roomInner, socket.id);
+        fetchChannelAndJoinAnddisconnectMain();
+        getAllMyJoinedRooms();
       });
 
       disconnect.addEventListener("submit", (e) => {
         e.preventDefault();
-        socket.emit("Leave-Room", roomInner);
-        roomInner = "";
+        leaveChannelAndClearRoomInner();
         console.log(1);
       });
-
+      getRooms.addEventListener("submit", (e) => {
+        e.preventDefault();
+        getAllMyJoinedRooms();
+      });
       // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
-      socket.on(mainChannel, (msg) => {
-        displayMsgLocally(`${msg}`);
+      socket.on(mainChannel, (msg, room) => {
+        displayMsgLocally(msg, room);
+      });
+      socket.on("get-rooms-user", (data) => {
+        const roomsMsgLocally = `Rooms joined ${data}`;
+        displayMsgLocally(roomsMsgLocally);
       });
     </script>
   </body>
