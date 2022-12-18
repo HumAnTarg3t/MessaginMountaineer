@@ -27,13 +27,13 @@ io.on("connection", (socket) => {
   socket.on("Room-Joined", (room, id) => {
     socket.join(room);
     console.log(`${id} joined ${room}`);
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
   });
 
   socket.on("Leave-Room", (room, id) => {
     socket.leave(room);
     console.log(`${id} disconnected from: ${room}`);
-    console.log(socket.rooms);
+    // console.log(socket.rooms);
   });
 
   socket.on("get-rooms", () => {

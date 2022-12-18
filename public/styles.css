@@ -25,6 +25,15 @@ body {
     "Channel ."
     "form disconnect";
 }
+.disconnect_btn_options {
+  background: #333;
+  border: none;
+  padding: 0 1rem;
+  margin: 0.25rem;
+  border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
 
 .Channel {
   grid-area: Channel;
@@ -66,9 +75,13 @@ body {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  padding-bottom: 1.5pc;
 }
 #messages > li {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
+}
+#messages > ul {
+  padding-bottom: 1.5pc;
 }
 #messages > li:nth-child(odd) {
   background: #efefef;

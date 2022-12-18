@@ -19,6 +19,7 @@
         <input id="inputMessage" autocomplete="off" /><button>Send</button>
       </form>
       <form id="disconnect" class="disconnect">
+        <input autocomplete="off" id="disconnect_input" />
         <button id="disconnect_btn">Disconnect</button>
       </form>
       <form id="rooms" class="rooms_btn">
@@ -43,14 +44,16 @@
       let roomInner;
       let mainChannel = "main Chat";
       let inputMessage = document.getElementById("inputMessage");
+      let disconnect_input = document.getElementById("disconnect_input");
       let disconnect = document.getElementById("disconnect");
       let getRooms = document.getElementById("rooms");
-      let roomsArray = [socket.id] || false;
+      let roomsArray = socket.id || false;
+      console.log(roomsArray);
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       const displayMsgLocally = (msg, room) => {
         let item = document.createElement("li");
-        item.textContent = msg;
+        item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         console.log(`Client is listening on ${mainChannel}`);
@@ -77,22 +80,23 @@
 
       const fetchChannelAndJoin = () => {
         roomInner = chooseChannel.value;
+        chooseChannel.value = "";
         socket.emit("Room-Joined", roomInner, socket.id);
         console.log(`Bruker ${socket.id} har joinet: ${roomInner}`);
       };
 
-      const leaveChannelAndClearRoomInner = () => {
-        socket.emit("Leave-Room", roomInner, socket.id);
-        roomInner = "";
-        console.log(`Bruker ${socket.id} har disconnected fra: ${roomInner}`);
+      const leaveChannelAndClearRoomInner = (input) => {
+        socket.emit("Leave-Room", input, socket.id);
+        disconnect_input.value = "";
+        console.log(`Bruker ${socket.id} har disconnected fra: ${input}`);
       };
 
       // Sender melding til namespacet "main Chat"
       sendMsg.addEventListener("submit", (e) => {
         e.preventDefault();
-        displayMsgLocally(`${socket.id}: ${inputMessage.value}`);
+        displayMsgLocally(`${socket.id}: ${inputMessage.value}`, roomInner);
+        console.log("Message: " + inputMessage.value);
         sendMessagetoServer(inputMessage.value, roomInner);
-        console.log("Message " + inputMessage.value);
       });
 
       // Setter hvilken room som skal brukes
@@ -104,7 +108,7 @@
 
       disconnect.addEventListener("submit", (e) => {
         e.preventDefault();
-        leaveChannelAndClearRoomInner();
+        leaveChannelAndClearRoomInner(disconnect_input.value);
         console.log(1);
       });
 
@@ -121,12 +125,13 @@
             displayMsgLocally(msg, room);
           }
         } catch (error) {
-          console.log("lmaso");
+          console.log(error);
         }
       });
 
       socket.on("get-rooms-user", (data) => {
         roomsArray = data;
+        console.log(roomsArray);
         const roomsMsgLocally = `Rooms joined ${data}`;
         displayMsgLocally(roomsMsgLocally);
       });
