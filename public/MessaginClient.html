@@ -34,106 +34,146 @@
       // Når client kobler seg på, så vil det vise hvilken id den har.
       socket.on("connect", () => {
         const loggedOnMsg = `Logged on as ${socket.id}`;
-        displayMsgLocally(loggedOnMsg);
+        displayMsgLocally(true, loggedOnMsg);
         window.scrollTo(0, document.body.scrollHeight);
+        getAllMyJoinedRooms(false);
       });
 
       let messages = document.getElementById("messages");
       let sendMsg = document.getElementById("form");
-      let getChannel = document.getElementById("Channel");
-      let roomInner;
-      let mainChannel = "main Chat";
+      let join_btn = document.getElementById("Channel");
+      let receivingRoom;
+      let mainRoomToSend = "mainRoomToSend";
+      let mainRoomToReceive = "mainRoomToReceive";
       let inputMessage = document.getElementById("inputMessage");
       let disconnect_input = document.getElementById("disconnect_input");
-      let disconnect = document.getElementById("disconnect");
-      let getRooms = document.getElementById("rooms");
-      let roomsArray = socket.id || false;
-      console.log(roomsArray);
+      let disconnect_btn = document.getElementById("disconnect");
+      let rooms_btn = document.getElementById("rooms");
+      let roomsArray = receivingRoom || false;
 
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
-      const displayMsgLocally = (msg, room) => {
-        let item = document.createElement("li");
-        item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-        console.log(`Client is listening on ${mainChannel}`);
-      };
-
-      const getAllMyJoinedRooms = () => {
-        socket.emit("get-rooms");
-      };
-
-      const sendMessagetoServer = (msg, room) => {
-        console.log(`Room: ${room}`);
-        // send melding til alle om msg ikke er tom og room ikke er brukt
-        if (msg && room == "") {
-          socket.emit(mainChannel, `${socket.id}: ${msg}`);
-          inputMessage.value = "";
-          console.log(`Client sending to ${mainChannel}`);
-          // send melding til main chat og hvilket room som skal blir brukt
+      // Har et flagget showMsg om meldingen skal vises eller ikke
+      const displayMsgLocally = (showMsg, msg, room) => {
+        if (showMsg) {
+          let item = document.createElement("li");
+          item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+          console.log(`Client is listening on ${mainRoomToSend}`);
         } else {
-          socket.emit(mainChannel, `${socket.id}: ${msg}`, room);
-          inputMessage.value = "";
-          // console.log(`LOG: sender en melding til ${room} `);
+          console.log("Msg not shown " + showMsg);
         }
       };
 
-      const fetchChannelAndJoin = () => {
-        roomInner = chooseChannel.value;
-        chooseChannel.value = "";
-        socket.emit("Room-Joined", roomInner, socket.id);
-        console.log(`Bruker ${socket.id} har joinet: ${roomInner}`);
+      // Gjør et kall for å hente alle roomene bruker er tilkoblet og har et flagg for å vise meldingen eller ikke.
+      const getAllMyJoinedRooms = (showMsg) => {
+        socket.emit("get-rooms", showMsg);
       };
 
-      const leaveChannelAndClearRoomInner = (input) => {
+      // Sender melding til server, om room er tomt så sender melding til alle.
+      // Om room ikke er tom så sendes meldingen til alle som abonnerer på roomet
+      const sendMessagetoServer = (msg, room) => {
+        console.log(`Room: ${room}`);
+        if (msg && room == "") {
+          socket.emit(mainRoomToSend, `${socket.id}: ${msg}`);
+          inputMessage.value = "";
+          console.log(`Client sending to ${mainRoomToSend}`);
+        } else {
+          socket.emit(mainRoomToSend, `${socket.id}: ${msg}`, room);
+          inputMessage.value = "";
+          console.log(`Client sending to ${room}`);
+        }
+      };
+
+      // Joiner et rom og gjør mottakeren kun til dem som abonnerer på rommet valgt
+      const joinNewRoom = () => {
+        receivingRoom = chooseChannel.value;
+        socket.emit("Room-Joined", receivingRoom, socket.id);
+        console.log(`Bruker ${socket.id} har joinet: ${mainRoomToSend}`);
+        chooseChannel.value = "";
+        // if (chooseChannel.value == "") {
+        //   receivingRoom = mainRoomToSend;
+        // } else {
+        //   receivingRoom = chooseChannel.value;
+        // }
+        // if (receivingRoom == "") {
+        // } else {
+        //   chooseChannel.value = "";
+        //   socket.emit("Room-Joined", receivingRoom, socket.id);
+        //   console.log(`Bruker ${socket.id} har joinet: ${receivingRoom}`);
+        // }
+      };
+
+      // forlater rommet som er i "input" og setter mottaker til felles kanal
+      const leaveChannelAndClearReceivingRoom = (input) => {
         socket.emit("Leave-Room", input, socket.id);
         disconnect_input.value = "";
+        receivingRoom = mainRoomToSend;
         console.log(`Bruker ${socket.id} har disconnected fra: ${input}`);
       };
 
-      // Sender melding til namespacet "main Chat"
+      // Sender knapp som viser melding lokalt og sender til server
       sendMsg.addEventListener("submit", (e) => {
         e.preventDefault();
-        displayMsgLocally(`${socket.id}: ${inputMessage.value}`, roomInner);
+        displayMsgLocally(
+          true,
+          `${socket.id}: ${inputMessage.value}`,
+          receivingRoom
+        );
         console.log("Message: " + inputMessage.value);
-        sendMessagetoServer(inputMessage.value, roomInner);
+        // if (receivingRoom == "") {
+        //   sendMessagetoServer(inputMessage.value, mainRoomToSend);
+        //   console.log("roomeInner er tom");
+        // } else {
+        // }
+        sendMessagetoServer(inputMessage.value, receivingRoom);
       });
 
-      // Setter hvilken room som skal brukes
-      getChannel.addEventListener("submit", (e) => {
+      // "Join" knappen som oppdaterer lokal array for hvilken rooms du er i, forlater det siste roomet i lokal array og joiner valgt room istedenfor, så oppdaterer den
+      // lokal array for hvilken rooms du er i til sist
+      join_btn.addEventListener("submit", (e) => {
         e.preventDefault();
-        fetchChannelAndJoin();
-        getAllMyJoinedRooms();
+        getAllMyJoinedRooms(false);
+        console.log("join btn " + roomsArray[1]);
+        leaveChannelAndClearReceivingRoom(roomsArray[1]);
+        joinNewRoom();
+        getAllMyJoinedRooms(true);
       });
-
-      disconnect.addEventListener("submit", (e) => {
+      // disconnet knappen som forlater rommet valgt, blir nok likte brukt siden "Join_btn" fikser sånn at du alltid er i max 1 kanal utenom din egen personlige.
+      disconnect_btn.addEventListener("submit", (e) => {
         e.preventDefault();
-        leaveChannelAndClearRoomInner(disconnect_input.value);
-        console.log(1);
+        leaveChannelAndClearReceivingRoom(disconnect_input.value);
+        // console.log(1);
       });
 
-      getRooms.addEventListener("submit", (e) => {
+      // Henter hvilken rooms du er medlem i
+      rooms_btn.addEventListener("submit", (e) => {
         e.preventDefault();
-        getAllMyJoinedRooms();
+        getAllMyJoinedRooms(true);
       });
 
-      // Lytter på alle meldinger som kommer til namespace "main Chat" og putter det i en liste sånn at bruker kan lese det.
-      socket.on(mainChannel, (msg, room) => {
-        try {
-          console.log("test" + roomsArray);
-          if (roomsArray.includes(room)) {
-            displayMsgLocally(msg, room);
-          }
-        } catch (error) {
-          console.log(error);
-        }
+      // Lytter på alle meldinger som server sender til variablen mainRoomToReceive
+      socket.on(mainRoomToReceive, (msg, room) => {
+        displayMsgLocally(true, msg, room);
+        // try {
+        //   console.log("test " + roomsArray);
+        //   if (roomsArray.includes(room)) {
+        //     displayMsgLocally(msg, room);
+        //     console.log("melding vist");
+        //   } else {
+        //     console.log(`Room: ${room} er ikke i array: ${roomsArray}`);
+        //   }
+        // } catch (error) {
+        //   console.log(`Room: ${room} er ikke i array: ${roomsArray}`);
+        // }
       });
 
-      socket.on("get-rooms-user", (data) => {
+      // tar imot meldinger på "get-rooms-user", oppdaterer lokal array varibel med hvilket rooms du er i
+      socket.on("get-rooms-user", (data, showMsg) => {
         roomsArray = data;
-        console.log(roomsArray);
+        console.log(roomsArray[1]);
         const roomsMsgLocally = `Rooms joined ${data}`;
-        displayMsgLocally(roomsMsgLocally);
+        displayMsgLocally(showMsg, roomsMsgLocally);
       });
     </script>
   </body>
