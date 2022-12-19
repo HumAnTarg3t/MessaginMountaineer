@@ -14,7 +14,7 @@ const addUserToExcept = (userToAdd) => {
   console.log(`User ${userToAdd} added to usersWithMoreThen2Rooms`);
   console.log(usersWithMoreThen2Rooms);
 };
-const remoceUserFromExcept = (userToRemove) => {
+const removeUserFromExcept = (userToRemove) => {
   let indexOfUser = usersWithMoreThen2Rooms.indexOf(userToRemove);
   if (indexOfUser > -1) {
     usersWithMoreThen2Rooms.splice(indexOfUser, 1);
@@ -24,8 +24,27 @@ const remoceUserFromExcept = (userToRemove) => {
     console.log("User not found");
   }
 };
+
 io.on("connection", (socket) => {
+  const sendUserLoggedOnOffMsg = (id, status, room) => {
+    const userJoinedMessage = `User: ${id} has joined`;
+    const userLeftMessage = `User: ${id} left`;
+    if (!room && status) {
+      socket.broadcast
+        .except(usersWithMoreThen2Rooms)
+        .emit("mainRoomToReceive", userJoinedMessage);
+    } else if (room && status) {
+      socket.to(room).emit("mainRoomToReceive", userJoinedMessage, room);
+    } else if (!room && !status) {
+      socket.broadcast
+        .except(usersWithMoreThen2Rooms)
+        .emit("mainRoomToReceive", userLeftMessage);
+    } else if (room && !status) {
+      socket.to(room).emit("mainRoomToReceive", userLeftMessage, room);
+    }
+  };
   // Lytter på alle meldinger som kommer til "mainRoomToSend"
+  sendUserLoggedOnOffMsg(socket.id, true);
   socket.on("mainRoomToSend", (msg, room) => {
     console.log(`Message: ${msg}`);
     console.log(`Room: ${room}`);
@@ -45,16 +64,23 @@ io.on("connection", (socket) => {
 
   // Legger til en bruker i ønsket room
   socket.on("Room-Joined", (room, id) => {
-    socket.join(room);
-    addUserToExcept(id);
-    console.log(`${id} joined ${room}`);
+    if (room) {
+      socket.join(room);
+      addUserToExcept(id);
+      sendUserLoggedOnOffMsg(socket.id, true, room);
+      console.log(`${id} joined ${room}`);
+    } else {
+      sendUserLoggedOnOffMsg(socket.id, true);
+    }
     // console.log(socket.rooms);
   });
 
   // Fjerner bruker fra ønsket room
   socket.on("Leave-Room", (room, id) => {
     socket.leave(room);
-    remoceUserFromExcept(id);
+    removeUserFromExcept(id);
+    console.log(11111111111111111111111111111111111111111111111111111 + id);
+    sendUserLoggedOnOffMsg(socket.id, false, room);
     console.log(`${id} disconnected from: ${room}`);
     // console.log(socket.rooms);
   });
@@ -71,7 +97,8 @@ io.on("connection", (socket) => {
     // console.log(showMsg);
   });
   socket.on("disconnect", () => {
-    remoceUserFromExcept(socket.id);
+    removeUserFromExcept(socket.id);
+    sendUserLoggedOnOffMsg(socket.id, false);
     console.log(`${socket.id} disconnected`);
   });
 });

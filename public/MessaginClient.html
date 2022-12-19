@@ -56,7 +56,8 @@
       const displayMsgLocally = (showMsg, msg, room) => {
         if (showMsg) {
           let item = document.createElement("li");
-          item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
+          // item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
+          item.textContent = `${msg}`;
           messages.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
           console.log(`Client is listening on ${mainRoomToSend}`);
@@ -176,7 +177,7 @@
       socket.on("get-rooms-user", (data, showMsg) => {
         roomsArray = data;
         console.log(roomsArray[1]);
-        const roomsMsgLocally = `Rooms joined ${data}`;
+        const roomsMsgLocally = `Rooms currently joined: ${data}`;
         displayMsgLocally(showMsg, roomsMsgLocally);
       });
 
