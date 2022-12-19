@@ -7,7 +7,23 @@ app.use(express.static(__dirname + "/public"));
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/Public/MessaginClient.html");
 });
+let usersWithMoreThen2Rooms = [];
 
+const addUserToExcept = (userToAdd) => {
+  usersWithMoreThen2Rooms.push(userToAdd);
+  console.log(`User ${userToAdd} added to usersWithMoreThen2Rooms`);
+  console.log(usersWithMoreThen2Rooms);
+};
+const remoceUserFromExcept = (userToRemove) => {
+  let indexOfUser = usersWithMoreThen2Rooms.indexOf(userToRemove);
+  if (indexOfUser > -1) {
+    usersWithMoreThen2Rooms.splice(indexOfUser, 1);
+    console.log(`User ${userToRemove} removed from usersWithMoreThen2Rooms`);
+    console.log(usersWithMoreThen2Rooms);
+  } else {
+    console.log("User not found");
+  }
+};
 io.on("connection", (socket) => {
   // Lytter på alle meldinger som kommer til "mainRoomToSend"
   socket.on("mainRoomToSend", (msg, room) => {
@@ -16,7 +32,9 @@ io.on("connection", (socket) => {
     // Om "room" ikke er med i meldingen fra klinet, send melding til alle som lytter på mainRoomToSend
     if (room == null) {
       // socket.broadcast.emit sender ikke melding tilbake til den som sendte meldingen først
-      socket.broadcast.emit("mainRoomToReceive", msg);
+      socket.broadcast
+        .except(usersWithMoreThen2Rooms)
+        .emit("mainRoomToReceive", msg);
       console.log("Melding sendt i mainRoomToSend");
       // om melding inneholder en room så send melding til kun det roomet
     } else {
@@ -28,6 +46,7 @@ io.on("connection", (socket) => {
   // Legger til en bruker i ønsket room
   socket.on("Room-Joined", (room, id) => {
     socket.join(room);
+    addUserToExcept(id);
     console.log(`${id} joined ${room}`);
     // console.log(socket.rooms);
   });
@@ -35,6 +54,7 @@ io.on("connection", (socket) => {
   // Fjerner bruker fra ønsket room
   socket.on("Leave-Room", (room, id) => {
     socket.leave(room);
+    remoceUserFromExcept(id);
     console.log(`${id} disconnected from: ${room}`);
     // console.log(socket.rooms);
   });
@@ -46,9 +66,13 @@ io.on("connection", (socket) => {
     for (const entry of getRoomForUser) {
       arrayOfRooms.push(entry);
     }
-    console.log(arrayOfRooms);
+    console.log(`Bruker: ${socket.id}, Rooms:[${arrayOfRooms}]`);
     socket.emit("get-rooms-user", arrayOfRooms, showMsg);
-    console.log(showMsg);
+    // console.log(showMsg);
+  });
+  socket.on("disconnect", () => {
+    remoceUserFromExcept(socket.id);
+    console.log(`${socket.id} disconnected`);
   });
 });
 http.listen(port, () => {

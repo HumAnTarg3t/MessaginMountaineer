@@ -87,10 +87,14 @@
 
       // Joiner et rom og gjør mottakeren kun til dem som abonnerer på rommet valgt
       const joinNewRoom = () => {
-        receivingRoom = chooseChannel.value;
-        socket.emit("Room-Joined", receivingRoom, socket.id);
-        console.log(`Bruker ${socket.id} har joinet: ${mainRoomToSend}`);
-        chooseChannel.value = "";
+        if (chooseChannel.value !== "") {
+          receivingRoom = chooseChannel.value || undefined;
+          socket.emit("Room-Joined", receivingRoom, socket.id);
+          console.log(`Bruker ${socket.id} har joinet: ${mainRoomToSend}`);
+          chooseChannel.value = "";
+        } else {
+          leaveChannelAndClearReceivingRoom(roomsArray[1]);
+        }
         // if (chooseChannel.value == "") {
         //   receivingRoom = mainRoomToSend;
         // } else {
@@ -108,7 +112,7 @@
       const leaveChannelAndClearReceivingRoom = (input) => {
         socket.emit("Leave-Room", input, socket.id);
         disconnect_input.value = "";
-        receivingRoom = mainRoomToSend;
+        receivingRoom = undefined;
         console.log(`Bruker ${socket.id} har disconnected fra: ${input}`);
       };
 
@@ -174,6 +178,10 @@
         console.log(roomsArray[1]);
         const roomsMsgLocally = `Rooms joined ${data}`;
         displayMsgLocally(showMsg, roomsMsgLocally);
+      });
+
+      socket.on("disc", () => {
+        socket.disconnect();
       });
     </script>
   </body>
