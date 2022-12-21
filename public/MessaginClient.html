@@ -62,7 +62,7 @@
           window.scrollTo(0, document.body.scrollHeight);
           console.log(`Client is listening on ${mainRoomToSend}`);
         } else {
-          console.log("Msg not shown " + showMsg);
+          console.log("Msg not shown: " + showMsg);
         }
       };
 
@@ -98,17 +98,6 @@
         } else {
           leaveChannelAndClearReceivingRoom(roomsArray[1]);
         }
-        // if (chooseChannel.value == "") {
-        //   receivingRoom = mainRoomToSend;
-        // } else {
-        //   receivingRoom = chooseChannel.value;
-        // }
-        // if (receivingRoom == "") {
-        // } else {
-        //   chooseChannel.value = "";
-        //   socket.emit("Room-Joined", receivingRoom, socket.id);
-        //   console.log(`Bruker ${socket.id} har joinet: ${receivingRoom}`);
-        // }
       };
 
       // forlater rommet som er i "input" og setter mottaker til felles kanal
@@ -128,11 +117,6 @@
           receivingRoom
         );
         console.log("Message: " + inputMessage.value);
-        // if (receivingRoom == "") {
-        //   sendMessagetoServer(inputMessage.value, mainRoomToSend);
-        //   console.log("roomeInner er tom");
-        // } else {
-        // }
         sendMessagetoServer(inputMessage.value, receivingRoom);
       });
 
@@ -140,9 +124,8 @@
       // lokal array for hvilken rooms du er i til sist
       join_btn.addEventListener("submit", (e) => {
         e.preventDefault();
-        getAllMyJoinedRooms(true);
+        getAllMyJoinedRooms(false);
         console.log("join btn " + roomsArray[1]);
-        // leaveChannelAndClearReceivingRoom(roomsArray[1]);
         joinNewRoom();
         getAllMyJoinedRooms(true);
       });
@@ -150,7 +133,7 @@
       disconnect_btn.addEventListener("submit", (e) => {
         e.preventDefault();
         leaveChannelAndClearReceivingRoom(disconnect_input.value);
-        // console.log(1);
+        getAllMyJoinedRooms(true);
       });
 
       // Henter hvilken rooms du er medlem i
@@ -162,23 +145,12 @@
       // Lytter på alle meldinger som server sender til variablen mainRoomToReceive
       socket.on(mainRoomToReceive, (msg, room) => {
         displayMsgLocally(true, msg, room);
-        // try {
-        //   console.log("test " + roomsArray);
-        //   if (roomsArray.includes(room)) {
-        //     displayMsgLocally(msg, room);
-        //     console.log("melding vist");
-        //   } else {
-        //     console.log(`Room: ${room} er ikke i array: ${roomsArray}`);
-        //   }
-        // } catch (error) {
-        //   console.log(`Room: ${room} er ikke i array: ${roomsArray}`);
-        // }
       });
 
       // tar imot meldinger på "get-rooms-user", oppdaterer lokal array varibel med hvilket rooms du er i
       socket.on("get-rooms-user", (data, showMsg) => {
         roomsArray = data;
-        console.log(roomsArray[1]);
+        console.log("roomsArray: "+roomsArray[1]);
         const roomsMsgLocally = `Rooms currently joined: ${data}`;
         displayMsgLocally(showMsg, roomsMsgLocally);
       });

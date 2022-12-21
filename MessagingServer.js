@@ -8,6 +8,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/Public/MessaginClient.html");
 });
 let usersWithMoreThen2Rooms = [];
+let allusersID=[]
 
 const addUserToExcept = (userToAdd) => {
   usersWithMoreThen2Rooms.push(userToAdd);
@@ -25,24 +26,39 @@ const removeUserFromExcept = (userToRemove) => {
   }
 };
 
-io.on("connection", (socket) => {
-  const sendUserLoggedOnOffMsg = (id, status, room) => {
+io.on("connection", async (socket) => {
+ 
+  const sockets = await io.fetchSockets();
+  for (const socket of sockets) {
+    // console.log(socket.id);
+    // console.log(socket.handshake);
+    // console.log(socket.rooms);
+    // console.log(socket.data);
+    if(!allusersID.includes(socket.id)){
+      allusersID.push(socket.id)
+    }else{
+      console.log(123123123123);
+    }
+    
+  }
+console.log(`Alle bruker array: ${allusersID}`);
+  const sendUserLoggedOnOffMsg = (id, notSendToUsersInArray, room) => {
     const userJoinedMessage = `User: ${id} has joined`;
     const userLeftMessage = `User: ${id} left`;
-    if (!room && status) {
+    if (!room && notSendToUsersInArray) {
       console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
       socket.broadcast
         .except(usersWithMoreThen2Rooms)
         .emit("mainRoomToReceive", userJoinedMessage);
-    } else if (room && status) {
+    } else if (room && notSendToUsersInArray) {
       console.log("Sender userJoinedMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userJoinedMessage, room);
-    } else if (!room && !status) {
+    } else if (!room && !notSendToUsersInArray) {
       console.log("Sender UserLeftMsg til alle utenom usersWithMoreThen2Rooms");
       socket.broadcast
         .except(usersWithMoreThen2Rooms)
         .emit("mainRoomToReceive", userLeftMessage);
-    } else if (room && !status) {
+    } else if (room && !notSendToUsersInArray) {
       console.log("Sender UserLeftMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userLeftMessage, room);
       console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
@@ -51,6 +67,7 @@ io.on("connection", (socket) => {
         .emit("mainRoomToReceive", userJoinedMessage);
     }
   };
+
   // Lytter på alle meldinger som kommer til "mainRoomToSend"
   sendUserLoggedOnOffMsg(socket.id, true);
   socket.on("mainRoomToSend", (msg, room) => {
@@ -72,25 +89,32 @@ io.on("connection", (socket) => {
 
   // Legger til en bruker i ønsket room
   socket.on("Room-Joined", (room, id) => {
-    if (room) {
+    if (room && !allusersID.includes(room)) {
       socket.join(room);
       addUserToExcept(id);
       sendUserLoggedOnOffMsg(socket.id, true, room);
       console.log(`${id} joined ${room}`);
-    } else {
+    } else if (allusersID.includes(room)){
+      socket.join(room);
+      addUserToExcept(id);
+      // Det mangler no en funksjon ett eller annet sted der det blir
+      // opprettet en custom kanal og en inv er sendt til client 2
+      const testMeldinFor1v1Samtale = "skal vi snakke privat?"
+      socket.to(room).emit("mainRoomToReceive", testMeldinFor1v1Samtale, room);
+      console.log(`${id} joined ${room}`);
+    }
+    else {
       sendUserLoggedOnOffMsg(socket.id, true);
     }
-    // console.log(socket.rooms);
+
   });
 
   // Fjerner bruker fra ønsket room
   socket.on("Leave-Room", (room, id) => {
     socket.leave(room);
     removeUserFromExcept(id);
-    console.log(11111111111111111111111111111111111111111111111111111 + id);
     sendUserLoggedOnOffMsg(socket.id, false, room);
     console.log(`${id} disconnected from: ${room}`);
-    // console.log(socket.rooms);
   });
 
   // Sender info til bruker om hvilket rooms den er i
@@ -102,11 +126,12 @@ io.on("connection", (socket) => {
     }
     console.log(`Bruker: ${socket.id}, Rooms:[${arrayOfRooms}]`);
     socket.emit("get-rooms-user", arrayOfRooms, showMsg);
-    // console.log(showMsg);
   });
   socket.on("disconnect", () => {
     removeUserFromExcept(socket.id);
     sendUserLoggedOnOffMsg(socket.id, false);
+    allusersID.pop(socket.id)
+    console.log(allusersID);
     console.log(`${socket.id} disconnected`);
   });
 });
