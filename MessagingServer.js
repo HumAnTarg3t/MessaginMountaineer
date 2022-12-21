@@ -12,14 +12,14 @@ let usersWithMoreThen2Rooms = [];
 const addUserToExcept = (userToAdd) => {
   usersWithMoreThen2Rooms.push(userToAdd);
   console.log(`User ${userToAdd} added to usersWithMoreThen2Rooms`);
-  console.log(usersWithMoreThen2Rooms);
+  console.log("usersWithMoreThen2Rooms :"+usersWithMoreThen2Rooms);
 };
 const removeUserFromExcept = (userToRemove) => {
   let indexOfUser = usersWithMoreThen2Rooms.indexOf(userToRemove);
   if (indexOfUser > -1) {
     usersWithMoreThen2Rooms.splice(indexOfUser, 1);
     console.log(`User ${userToRemove} removed from usersWithMoreThen2Rooms`);
-    console.log(usersWithMoreThen2Rooms);
+    console.log("usersWithMoreThen2Rooms :"+usersWithMoreThen2Rooms);
   } else {
     console.log("User not found");
   }
@@ -30,17 +30,25 @@ io.on("connection", (socket) => {
     const userJoinedMessage = `User: ${id} has joined`;
     const userLeftMessage = `User: ${id} left`;
     if (!room && status) {
+      console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
       socket.broadcast
         .except(usersWithMoreThen2Rooms)
         .emit("mainRoomToReceive", userJoinedMessage);
     } else if (room && status) {
+      console.log("Sender userJoinedMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userJoinedMessage, room);
     } else if (!room && !status) {
+      console.log("Sender UserLeftMsg til alle utenom usersWithMoreThen2Rooms");
       socket.broadcast
         .except(usersWithMoreThen2Rooms)
         .emit("mainRoomToReceive", userLeftMessage);
     } else if (room && !status) {
+      console.log("Sender UserLeftMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userLeftMessage, room);
+      console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
+      socket.broadcast
+        .except(usersWithMoreThen2Rooms)
+        .emit("mainRoomToReceive", userJoinedMessage);
     }
   };
   // Lytter på alle meldinger som kommer til "mainRoomToSend"

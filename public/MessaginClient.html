@@ -54,7 +54,7 @@
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       // Har et flagget showMsg om meldingen skal vises eller ikke
       const displayMsgLocally = (showMsg, msg, room) => {
-        if (showMsg) {
+        if (showMsg==true) {
           let item = document.createElement("li");
           // item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
           item.textContent = `${msg}`;
@@ -90,6 +90,8 @@
       const joinNewRoom = () => {
         if (chooseChannel.value !== "") {
           receivingRoom = chooseChannel.value || undefined;
+          socket.emit("Leave-Room", roomsArray[1], socket.id);
+          console.log(`Bruker ${socket.id} har disconnected fra: ${roomsArray[1]}`);
           socket.emit("Room-Joined", receivingRoom, socket.id);
           console.log(`Bruker ${socket.id} har joinet: ${mainRoomToSend}`);
           chooseChannel.value = "";
@@ -138,9 +140,9 @@
       // lokal array for hvilken rooms du er i til sist
       join_btn.addEventListener("submit", (e) => {
         e.preventDefault();
-        getAllMyJoinedRooms(false);
+        getAllMyJoinedRooms(true);
         console.log("join btn " + roomsArray[1]);
-        leaveChannelAndClearReceivingRoom(roomsArray[1]);
+        // leaveChannelAndClearReceivingRoom(roomsArray[1]);
         joinNewRoom();
         getAllMyJoinedRooms(true);
       });
