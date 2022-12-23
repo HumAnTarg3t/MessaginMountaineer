@@ -140,6 +140,7 @@
       rooms_btn.addEventListener("submit", (e) => {
         e.preventDefault();
         getAllMyJoinedRooms(true);
+        displayMsgLocally(true, `Sender til room: ${receivingRoom}`)
       });
 
       // Lytter på alle meldinger som server sender til variablen mainRoomToReceive
@@ -154,6 +155,13 @@
         const roomsMsgLocally = `Rooms currently joined: ${data}`;
         displayMsgLocally(showMsg, roomsMsgLocally);
       });
+
+      socket.on("Join-Custom-Room", (customRoomID,id)=>{
+        console.log("treffer hjeg denne?");
+        if(id == socket.id){
+          receivingRoom = customRoomID
+        }else{console.log("gikk til else");}
+      })
 
       socket.on("disc", () => {
         socket.disconnect();

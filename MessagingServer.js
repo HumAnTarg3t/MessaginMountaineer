@@ -95,11 +95,13 @@ console.log(`Alle bruker array: ${allusersID}`);
       sendUserLoggedOnOffMsg(socket.id, true, room);
       console.log(`${id} joined ${room}`);
     } else if (allusersID.includes(room)){
-      socket.join(room);
+      const customRoom = room+"------"+id
+      socket.join(customRoom);
       addUserToExcept(id);
+      socket.emit("Join-Custom-Room", customRoom,id)
       // Det mangler no en funksjon ett eller annet sted der det blir
       // opprettet en custom kanal og en inv er sendt til client 2
-      const testMeldinFor1v1Samtale = "skal vi snakke privat?"
+      const testMeldinFor1v1Samtale = `skal vi snakke privat? Room: ${customRoom}`
       socket.to(room).emit("mainRoomToReceive", testMeldinFor1v1Samtale, room);
       console.log(`${id} joined ${room}`);
     }
