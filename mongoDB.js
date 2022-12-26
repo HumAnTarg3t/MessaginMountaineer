@@ -93,15 +93,15 @@ async function updateTableInDB(dataBase, table_collection, filterQuery, updateDo
         await client.close();
     }
 }
-const filter ={"name":"Halley's Comet"}
+const filter ={"_id":ObjectId("63a84dcd80e4c9b7728c2402")}
 const updateDoc = {
 $set: {
-    name: "endret kun denne "
+    name: "god jul"
 }
 };
 // Filter er en query for å spesifere søket lit
 // updateDoc er et objekt med hva som oppdateres med
-// updateTableInDB("sample_guides","comets",filter,updateDoc)
+updateTableInDB("sample_guides","comets",filter,updateDoc)
 
 
 
