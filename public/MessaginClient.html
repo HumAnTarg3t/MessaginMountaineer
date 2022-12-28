@@ -54,7 +54,7 @@
       // Når demme funksjonen blir brukt så legger den til meldingen fra inputMessage lokalt på klienten.
       // Har et flagget showMsg om meldingen skal vises eller ikke
       const displayMsgLocally = (showMsg, msg, room) => {
-        if (showMsg==true) {
+        if (showMsg == true) {
           let item = document.createElement("li");
           // item.textContent = `Sendt til room: ${room}, Melding: ${msg}`;
           item.textContent = `${msg}`;
@@ -91,7 +91,9 @@
         if (chooseChannel.value !== "") {
           receivingRoom = chooseChannel.value || undefined;
           socket.emit("Leave-Room", roomsArray[1], socket.id);
-          console.log(`Bruker ${socket.id} har disconnected fra: ${roomsArray[1]}`);
+          console.log(
+            `Bruker ${socket.id} har disconnected fra: ${roomsArray[1]}`
+          );
           socket.emit("Room-Joined", receivingRoom, socket.id);
           console.log(`Bruker ${socket.id} har joinet: ${mainRoomToSend}`);
           chooseChannel.value = "";
@@ -140,7 +142,7 @@
       rooms_btn.addEventListener("submit", (e) => {
         e.preventDefault();
         getAllMyJoinedRooms(true);
-        displayMsgLocally(true, `Sender til room: ${receivingRoom}`)
+        displayMsgLocally(true, `Sender til room: ${receivingRoom}`);
       });
 
       // Lytter på alle meldinger som server sender til variablen mainRoomToReceive
@@ -151,17 +153,19 @@
       // tar imot meldinger på "get-rooms-user", oppdaterer lokal array varibel med hvilket rooms du er i
       socket.on("get-rooms-user", (data, showMsg) => {
         roomsArray = data;
-        console.log("roomsArray: "+roomsArray[1]);
+        console.log("roomsArray: " + roomsArray[1]);
         const roomsMsgLocally = `Rooms currently joined: ${data}`;
         displayMsgLocally(showMsg, roomsMsgLocally);
       });
 
-      socket.on("Join-Custom-Room", (customRoomID,id)=>{
+      socket.on("Join-Custom-Room", (customRoomID, id) => {
         console.log("treffer hjeg denne?");
-        if(id == socket.id){
-          receivingRoom = customRoomID
-        }else{console.log("gikk til else");}
-      })
+        if (id == socket.id) {
+          receivingRoom = customRoomID;
+        } else {
+          console.log("gikk til else");
+        }
+      });
 
       socket.on("disc", () => {
         socket.disconnect();

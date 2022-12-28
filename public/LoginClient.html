@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login to MessaginMountaineer</title>
+  </head>
+  <body>
+    <div class="forms">
+      <form id="Login_form" action="">
+        <input id="Username_input" class="Username_input" autocomplete="off" />
+        <input
+          id="Password_Input"
+          type="password"
+          class="Password_Input"
+          autocomplete="off"
+        />
+        <button>Login</button>
+      </form>
+      <!-- <form id="form" class="form" action="">
+        <input id="inputMessage" autocomplete="off" /><button>Send</button>
+      </form> -->
+      <!-- <form id="disconnect" class="disconnect">
+        <input autocomplete="off" id="disconnect_input" />
+        <button id="disconnect_btn">Disconnect</button>
+      </form> -->
+      <!-- <form id="rooms" class="rooms_btn">
+        <button id="rooms_btn">Rooms</button>
+      </form> -->
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      let socket = io();
+      const Login_form = document.getElementById("Login_form");
+      Login_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        console.log(
+          `username: ${Username_input.value}, password: ${Password_Input.value}`
+        );
+        Username_input.value = "";
+        Password_Input.value = "";
+      });
+    </script>
+    <!-- <script src="./LoginClient.js" type="module"></script> -->
+  </body>
+</html>
