@@ -1,19 +1,21 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
+const proxy = require("express-http-proxy");
 const app = require("express")();
+//const morgan = require("morgan");
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
-const port = process.env.PORT || 3000;
-require("./testLoginExpress");
+const port = process.env.PORT || 3001;
+require("./LoginExpress");
 // import { readFromDB } from "./mongoDB.js";
 const { readFromDB } = require("./mongoDB");
 app.use(express.static(__dirname + "/public/"));
 // app.get("/", (req, res) => {
 //   res.sendFile(__dirname + "/Public/LoginClient.html");
 // });
-
+//app.use("/", proxy(process.env.DOMAIN_NAME + '/MessagingClient'))
 app.get("/MessagingClient", (req, res) => {
-  res.sendFile(__dirname + "/Public/MessaginClient.html");
+  res.sendFile(__dirname + "/public/MessaginClient.html");
 });
 
 let usersWithMoreThen2Rooms = [];

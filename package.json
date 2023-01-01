@@ -2,9 +2,9 @@
   "name": "MessagingMountineer",
   "version": "1.0.0",
   "description": "App for chatting",
-  "main": "MessagingServer.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon MessagingServer"
+    "start": "nodemon app"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,10 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-http-proxy": "^1.6.3",
+    "http-proxy-middleware": "^2.0.6",
     "mongodb": "^4.13.0",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.20",
     "socket.io": "^4.5.4"
   }
