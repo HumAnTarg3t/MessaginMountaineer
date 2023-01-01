@@ -6,7 +6,7 @@ const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const port = process.env.PORT || 3001;
-require("./LoginExpress");
+// require("./LoginExpress");
 // import { readFromDB } from "./mongoDB.js";
 const { readFromDB } = require("./mongoDB");
 app.use(express.static(__dirname + "/public/"));
@@ -125,7 +125,7 @@ io.on("connection", async (socket) => {
   socket.on("Leave-Room", (room, id) => {
     socket.leave(room);
     removeUserFromExcept(id);
-    // sendUserLoggedOnOffMsg(socket.id, false, room);
+    sendUserLoggedOnOffMsg(socket.id, false, room);
     console.log(`${id} disconnected from: ${room}`);
   });
 
