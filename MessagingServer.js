@@ -10,7 +10,7 @@ const port = process.env.PORT || 3001;
 // import { readFromDB } from "./mongoDB.js";
 const { readFromDB } = require("./mongoDB");
 console.log("test av __dirname");
-app.use(express.static(__dirname + "/public/"));
+app.use(express.static("./public/"));
 console.log(__dirname);
 console.log("test av __dirname2");
 // app.get("/", (req, res) => {
