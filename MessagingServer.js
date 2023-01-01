@@ -9,7 +9,10 @@ const port = process.env.PORT || 3001;
 // require("./LoginExpress");
 // import { readFromDB } from "./mongoDB.js";
 const { readFromDB } = require("./mongoDB");
+console.log("test av __dirname");
 app.use(express.static(__dirname + "/public/"));
+console.log(__dirname);
+console.log("test av __dirname2");
 // app.get("/", (req, res) => {
 //   res.sendFile(__dirname + "/Public/LoginClient.html");
 // });
@@ -17,7 +20,8 @@ app.use(express.static(__dirname + "/public/"));
 app.get("/MessagingClient", (req, res) => {
   res.sendFile(__dirname + "/public/MessaginClient.html");
 });
-
+console.log("test av __dirname3");
+console.log(__dirname);
 let usersWithMoreThen2Rooms = [];
 let allusersID = [];
 const addUserToExcept = (userToAdd) => {
