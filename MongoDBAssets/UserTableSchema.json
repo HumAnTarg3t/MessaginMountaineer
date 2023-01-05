@@ -1,0 +1,21 @@
+{
+  "title": "UserTableSchema",
+  "required": [
+    "_id",
+    "UserName",
+    "pwd",
+    "mail",
+    "ActiveStatus",
+    "AccountCreated",
+    "RoomId"
+  ],
+  "properties": {
+    "_id": { "bsonType": "objectId" },
+    "UserName": { "bsonType": "string" },
+    "pwd": { "bsonType": "string" },
+    "mail": { "bsonType": "string" },
+    "ActiveStatus": { "bsonType": "boolean" },
+    "AccountCreated": { "bsonType": "date" },
+    "RoomId": { "bsonType": "string" }
+  }
+}

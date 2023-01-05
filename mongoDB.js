@@ -1,8 +1,11 @@
 const dotenv = require("dotenv").config();
 const { MongoClient } = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
+const Int32 = require("mongodb").Int32;
+const NumberInt = require("mongodb").NumberInt;
+const Double = require("mongodb").Double;
 
-const __constString = `mongodb+srv://${process.env.mongodbSVC_User}:${process.env.mongodbSVC_Pwd}@messagingmountaineer-de.qqia6g2.mongodb.net/?retryWrites=true&w=majority`;
+const __constString = `mongodb+srv://${process.env.mongodbSVC_User}:${process.env.mongodbSVC_Pwd}${process.env.mongoDB_Url}`;
 const client = new MongoClient(__constString);
 
 async function readFromDB(dataBase, table_collection, query) {
@@ -29,7 +32,7 @@ async function readFromDB(dataBase, table_collection, query) {
     await client.close();
   }
 }
-module.exports = { readFromDB };
+
 // // operator query
 // readFromDB("sample_guides", "planets", { "surfaceTemperatureC.mean": { $lt: 15 } }).catch(console.dir);
 
@@ -57,21 +60,28 @@ async function writeToDB(dataBase, table_collection, query) {
     // Skriver til db
     const result = await dbtTable.insertOne(query);
     console.log(result);
+  } catch (e) {
+    console.log(e);
+    // e.errInfo.details.schemaRulesNotSatisfied[0].propertiesNotSatisfied[0]
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
   }
 }
 // insert code goes here
+
+const date = new Date();
 const docs = {
-  name: "insert 2's Comet",
-  officialName: "insert one test",
-  orbitalPeriod: 75,
-  radius: 3.4175,
-  mass: 2.2e14,
+  UserName: "Alice",
+  pwd: "2019",
+  mail: "History",
+  ActiveStatus: true,
+  AccountCreated: date,
+  RoomId: "Double(qweqweqwe.0)",
 };
 
-// writeToDB("sample_guides","comets",docs).catch(console.dir);
+// writeToDB(process.env.mongoDB_Client_dev, "testCol", docs);
+// readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
 
 async function updateTableInDB(
   dataBase,
@@ -124,3 +134,5 @@ async function DelTableInDB(dataBase, table_collection, filterQuery) {
 
 const filter2 = { _id: ObjectId("63a857bb37c20b5dc0640bdd") };
 // DelTableInDB("sample_guides","comets",filter2)
+
+module.exports = { readFromDB };
