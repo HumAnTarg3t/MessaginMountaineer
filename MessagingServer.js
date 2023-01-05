@@ -1,6 +1,7 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
 const proxy = require("express-http-proxy");
+const morgan = require("morgan");
 const app = require("express")();
 //const morgan = require("morgan");
 const http = require("http").Server(app);
@@ -8,8 +9,8 @@ const io = require("socket.io")(http);
 const port = process.env.PORT || 3001;
 // require("./LoginExpress");
 // import { readFromDB } from "./mongoDB.js";
-const { readFromDB } = require("./mongoDB");
-
+const { readFromDB } = require("./MongoDBAssets/mongoDB");
+app.use(morgan("dev"));
 app.use(express.static("./public/"));
 // app.get("/", (req, res) => {
 //   res.sendFile(__dirname + "/Public/LoginClient.html");

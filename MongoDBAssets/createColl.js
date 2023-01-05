@@ -55,4 +55,4 @@ async function creatCOL(collName) {
     console.log(error);
   }
 }
-// creatCOL();
+// creatCOL("UsersTable");

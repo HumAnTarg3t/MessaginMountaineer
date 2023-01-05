@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login to MessaginMountaineer</title>
+    <link type="text/css" rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="forms">
@@ -32,12 +33,28 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       let socket = io();
+
+      const postData = async (endpoint, data) => {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          mode: "cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      };
+
       const Login_form = document.getElementById("Login_form");
       Login_form.addEventListener("submit", (e) => {
         e.preventDefault();
         console.log(
           `username: ${Username_input.value}, password: ${Password_Input.value}`
         );
+        postData("localhost:3000/Api/v1/Post", {
+          username: Username_input.value,
+          pwd: Password_Input.value,
+        }).then((responseFromPost) => {
+          console.log(responseFromPost);
+        });
         Username_input.value = "";
         Password_Input.value = "";
       });
