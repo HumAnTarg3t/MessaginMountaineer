@@ -9,7 +9,7 @@ const port = process.env.PORT2 || 3002;
 // import { readFromDB } from "./mongoDB.js";
 const { readFromDB } = require("./MongoDBAssets/mongoDB");
 app.use(morgan("dev"));
-app.use(express.static("./public2"));
+app.use(express.static("./public2/"));
 //app.use("/", proxy("https://messaginmountaineer.glitch.me" + '/'))
 
 //app.use('/Login2', proxy("messaginmountaineer.glitch.me" + '/login'))
