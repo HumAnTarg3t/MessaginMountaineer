@@ -11,7 +11,9 @@ const client = new MongoClient(__constString);
 async function readFromDB(dataBase, table_collection, query) {
   try {
     // Logger på databasen
+    // console.log("YEAH");
     await client.connect();
+    // console.log("YEAH");
     // Her velger man hvilken db man skal koble seg på
     const db = client.db(dataBase);
     // Her velger man hviket table skal brukes
@@ -19,7 +21,12 @@ async function readFromDB(dataBase, table_collection, query) {
     if (query == null) {
       // her henter man alt som er i table
       const cursor = dbtTable.find();
-      await cursor.forEach(console.log);
+      let queryResult = [];
+      await cursor.forEach((e) => {
+        queryResult.push(e);
+      });
+      console.log(queryResult);
+      return queryResult;
     } else {
       // Henter alt i table som har {hasRings: true}
       const cursor = dbtTable.find(query);
@@ -80,7 +87,7 @@ const docs = {
   RoomId: "Double(qweqweqwe.0)",
 };
 
-// writeToDB(process.env.mongoDB_Client_dev, "testCol", docs);
+// writeToDB(process.env.mongoDB_Client_dev, "UsersTable", docs);
 // readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
 
 async function updateTableInDB(

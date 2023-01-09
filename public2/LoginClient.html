@@ -33,27 +33,31 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       let socket = io();
+      let csrfToken;
 
-      const postData = async (endpoint, data) => {
+      const postData = async (endpoint, credsInfo) => {
         const response = await fetch(endpoint, {
+          headers: { "Content-Type": "application/json" },
           method: "POST",
           mode: "cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
+          body: JSON.stringify(credsInfo),
+        })
+          .then((res) => {
+            res.text();
+          })
+          .then((data) => (csrfToken = data.csrfToken));
       };
-
+      // { Username: "data", pwd: 123 }
       const Login_form = document.getElementById("Login_form");
       Login_form.addEventListener("submit", (e) => {
         e.preventDefault();
         console.log(
           `username: ${Username_input.value}, password: ${Password_Input.value}`
         );
-        postData("localhost:3000/Api/v1/Post", {
-          username: Username_input.value,
+
+        postData("http://localhost:3000/Api/v1/Post", {
+          Username: Username_input.value,
           pwd: Password_Input.value,
-        }).then((responseFromPost) => {
-          console.log(responseFromPost);
         });
         Username_input.value = "";
         Password_Input.value = "";

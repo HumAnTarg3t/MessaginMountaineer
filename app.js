@@ -1,39 +1,49 @@
-// const dotenv = require("dotenv").config();
 const express = require("express");
-// const { Router } = require("express");
-// const proxy = require("express-http-proxy");
 const morgan = require("morgan");
-// const { createProxyMiddleware } = require("http-proxy-middleware");
+const cors = require("cors");
+const { readFromDB } = require("./MongoDBAssets/mongoDB");
 require("./LoginExpress");
 require("./MessagingServer");
-
 const app = require("express")();
 const http = require("http").Server(app);
-// const io = require("socket.io")(http);
-// const router = Router();
-// const options = {
-//   target: "http://localhost:3002/Login",
-//   changeOrigin: true,
-//   pathRewrite: {
-//     [`^/api/users/all`]: "OWOW",
-//   },
-// };
 const port = process.env.PORT || 3000;
-app.use(morgan("dev"));
+const { randomUUID } = require("crypto"); // Added in: node v14.17.0
 
-app.post("/Api/v1/Post", (req, res) => {
-  res.send("Vises i app, uten proxy");
+console.log(randomUUID({ disableEntropyCache: true }));
+
+app.use(morgan("dev"));
+app.use(
+  cors({
+    origin: "http://localhost:3002",
+    methods: "POST",
+  })
+);
+app.use(express.json({ type: "application/json" }));
+
+const compareArrays = (a, b) => {
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+
+app.post("/Api/v1/Post", async (req, res, next) => {
+  const data = await req.body;
+  let jsonBodyKeys = Object.keys(data);
+  const reqKeyForRequest = ["Username", "pwd"];
+  // console.log(`Keys from post: ${jsonBodyKeys}`);
+  // console.log(req.headers);
+  // console.log(`Keys required for post: ${reqKeyForRequest}`);
+  if (
+    req.headers["content-type"] == "application/json" &&
+    compareArrays(jsonBodyKeys, reqKeyForRequest)
+  ) {
+    readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
+    res.send(data);
+  } else {
+    res.statusCode = 400;
+    res.send("content-type feil, forventer application/json");
+    console.log(req.headers);
+  }
 });
 
-// // router.get("/login", createProxyMiddleware(options));
-// app.use("/login", proxy("http://localhost:3002/Login"));
-// // app.use("/chat", proxy("http://localhost:3001/MessagingClient"));
-// app.get("/login", (req, res) => {
-//   res.render("http://localhost:3002/login");
-// });
-// app.get("/chat", (req, res) => {
-//   res.redirect("http://localhost:3001/MessagingClient");
-// });
 http.listen(port, () => {
   console.log(`App login server running at http://localhost:${port}/`);
 });
