@@ -41,11 +41,7 @@
           method: "POST",
           mode: "cors",
           body: JSON.stringify(credsInfo),
-        })
-          .then((res) => {
-            res.text();
-          })
-          .then((data) => (csrfToken = data.csrfToken));
+        });
       };
       // { Username: "data", pwd: 123 }
       const Login_form = document.getElementById("Login_form");

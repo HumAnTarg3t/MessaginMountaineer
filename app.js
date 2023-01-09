@@ -7,9 +7,9 @@ require("./MessagingServer");
 const app = require("express")();
 const http = require("http").Server(app);
 const port = process.env.PORT || 3000;
-const { randomUUID } = require("crypto"); // Added in: node v14.17.0
-
-console.log(randomUUID({ disableEntropyCache: true }));
+const { randomUUID } = require("crypto");
+let csrfToken = randomUUID();
+// console.log(csrfToken);
 
 app.use(morgan("dev"));
 app.use(
@@ -23,6 +23,10 @@ app.use(express.json({ type: "application/json" }));
 const compareArrays = (a, b) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
+
+app.get("/", (req, res) => {
+  res.redirect("http://localhost:3002/login");
+});
 
 app.post("/Api/v1/Post", async (req, res, next) => {
   const data = await req.body;
