@@ -14,7 +14,7 @@ let csrfToken = randomUUID();
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: "http://localhost:3002",
+    origin: ["http://localhost:3002", "http://localhost:3001"],
     methods: "POST",
   })
 );
@@ -28,7 +28,7 @@ app.get("/", (req, res) => {
   res.redirect("http://localhost:3002/login");
 });
 
-app.post("/Api/v1/Post", async (req, res, next) => {
+app.post("/Api/v1/Post", async (req, res) => {
   const data = await req.body;
   let jsonBodyKeys = Object.keys(data);
   const reqKeyForRequest = ["Username", "pwd"];
@@ -39,8 +39,9 @@ app.post("/Api/v1/Post", async (req, res, next) => {
     req.headers["content-type"] == "application/json" &&
     compareArrays(jsonBodyKeys, reqKeyForRequest)
   ) {
-    readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
-    res.send(data);
+    // readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
+    console.log(data);
+    res.send({ heh: "wqe" });
   } else {
     res.statusCode = 400;
     res.send("content-type feil, forventer application/json");
