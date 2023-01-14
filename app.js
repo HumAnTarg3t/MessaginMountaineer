@@ -14,7 +14,7 @@ let csrfToken = randomUUID();
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: ["http://localhost:3002", "http://localhost:3001"],
+    origin: ["http://localhost:3002"],
     methods: "POST",
   })
 );
