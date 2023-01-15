@@ -7,34 +7,44 @@
     <title>Login to MessaginMountaineer</title>
     <link type="text/css" rel="stylesheet" href="./stylesClient.css" />
   </head>
+
   <body>
     <div class="forms">
       <form id="Login_form" action="">
-        <input id="Username_input" class="Username_input" autocomplete="off" />
+        <input
+          id="Username_input"
+          placeholder="Username"
+          class="Username_input"
+          autocomplete="off"
+        />
         <input
           id="Password_Input"
+          placeholder="Pwd"
           type="password"
           class="Password_Input"
           autocomplete="off"
         />
         <button>Login</button>
       </form>
-      <!-- <form id="form" class="form" action="">
-        <input id="inputMessage" autocomplete="off" /><button>Send</button>
-      </form> -->
-      <!-- <form id="disconnect" class="disconnect">
-        <input autocomplete="off" id="disconnect_input" />
-        <button id="disconnect_btn">Disconnect</button>
-      </form> -->
-      <!-- <form id="rooms" class="rooms_btn">
-        <button id="rooms_btn">Rooms</button>
-      </form> -->
+      <form id="Register_form" class="form" action="">
+        <input id="Register_Login" placeholder="Username" autocomplete="off" />
+        <input
+          id="Register_pwd"
+          placeholder="Pwd"
+          type="password"
+          autocomplete="off"
+        />
+        <input
+          id="Register_Email"
+          placeholder="Email"
+          type="email"
+          autocomplete="off"
+        />
+        <button id="SignUP_btn">Sign up</button>
+      </form>
     </div>
-    <!-- <script src="/socket.io/socket.io.js"></script> -->
-    <script>
-      // let socket = io();
-      // let csrfToken;
 
+    <script>
       const postData = async (endpoint, credsInfo) => {
         const response = await fetch(endpoint, {
           headers: { "Content-Type": "application/json" },
@@ -43,22 +53,50 @@
           body: JSON.stringify(credsInfo),
         });
       };
-      // { Username: "data", pwd: 123 }
       const Login_form = document.getElementById("Login_form");
+      const Register_form = document.getElementById("Register_form");
+
       Login_form.addEventListener("submit", (e) => {
         e.preventDefault();
-        console.log(
-          `username: ${Username_input.value}, password: ${Password_Input.value}`
-        );
+        if (Username_input.value && Password_Input.value) {
+          console.log(
+            `username: ${Username_input.value}, password: ${Password_Input.value}`
+          );
+          // når man skal gjøre kall til ubuntu, så må man kalle http://192.168.10.145/Api/v1/Post
+          //Må gjøres endringer på nginx
+          postData("http://localhost:3002/Api/v1/Post/Login", {
+            Username: Username_input.value,
+            pwd: Password_Input.value,
+          });
+          Username_input.value = "";
+          Password_Input.value = "";
+        }
+        console.log("emptyy");
+      });
 
-        postData("http://localhost:3002/Api/v1/Post", {
-          Username: Username_input.value,
-          pwd: Password_Input.value,
-        });
-        Username_input.value = "";
-        Password_Input.value = "";
+      Register_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (
+          Register_Login.value &&
+          Register_pwd.value &&
+          Register_Email.value
+        ) {
+          console.log(
+            `username: ${Register_Login.value}, password: ${Register_pwd.value}, email ${Register_Email.value}`
+          );
+          // når man skal gjøre kall til ubuntu, så må man kalle http://192.168.10.145/Api/v1/Post
+          //Må gjøres endringer på nginx
+          postData("http://localhost:3002/Api/v1/Post/Register", {
+            Register_Login: Register_Login.value,
+            Register_pwd: Register_pwd.value,
+            Register_Email: Register_Email.value,
+          });
+          Register_Login.value = "";
+          Register_pwd.value = "";
+          Register_Email.value = "";
+        }
+        console.log("emptyy");
       });
     </script>
-    <!-- <script src="./LoginClient.js" type="module"></script> -->
   </body>
 </html>

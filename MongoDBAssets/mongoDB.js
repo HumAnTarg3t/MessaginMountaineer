@@ -18,6 +18,7 @@ async function readFromDB(dataBase, table_collection, query) {
     const db = client.db(dataBase);
     // Her velger man hviket table skal brukes
     const dbtTable = db.collection(table_collection);
+
     if (query == null) {
       // her henter man alt som er i table
       const cursor = dbtTable.find();
@@ -26,16 +27,30 @@ async function readFromDB(dataBase, table_collection, query) {
         queryResult.push(e);
       });
       console.log(queryResult);
+
       return queryResult;
     } else {
       // Henter alt i table som har {hasRings: true}
       const cursor = dbtTable.find(query);
-      await cursor.forEach(console.log);
+      let queryFoundSomething = false;
+      result = [];
+      await cursor.forEach((e) => {
+        // console.log(e);
+        result.push(e);
+        queryFoundSomething = true;
+        // return e;
+      });
+      if (!queryFoundSomething) {
+        console.log("MongoDB.JS : empty");
+        return false;
+      }
+      return result;
       // Henter alt i table som har {hasRings: true} og {mainAtomsphere: "Ar"}
       // // const cursor = coll.find({hasRings: false, mainAtomsphere: "Ar"});
     }
   } finally {
     // Ensures that the client will close when you finish/error
+
     await client.close();
   }
 }
