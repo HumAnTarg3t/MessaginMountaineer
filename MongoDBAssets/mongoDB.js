@@ -157,4 +157,4 @@ async function DelTableInDB(dataBase, table_collection, filterQuery) {
 const filter2 = { _id: ObjectId("63a857bb37c20b5dc0640bdd") };
 // DelTableInDB("sample_guides","comets",filter2)
 
-module.exports = { readFromDB };
+module.exports = { readFromDB, writeToDB };
