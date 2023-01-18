@@ -45,12 +45,15 @@
     </div>
 
     <script>
-      const postData = async (endpoint, credsInfo) => {
+      const postData = async (endpoint, body) => {
         const response = await fetch(endpoint, {
           headers: { "Content-Type": "application/json" },
           method: "POST",
           mode: "cors",
-          body: JSON.stringify(credsInfo),
+          body: JSON.stringify(body),
+        }).then(async (e) => {
+          const responseFromPost = await e.json();
+          console.log(responseFromPost);
         });
       };
       const Login_form = document.getElementById("Login_form");
@@ -59,9 +62,9 @@
       Login_form.addEventListener("submit", (e) => {
         e.preventDefault();
         if (Username_input.value && Password_Input.value) {
-          console.log(
-            `username: ${Username_input.value}, password: ${Password_Input.value}`
-          );
+          // console.log(
+          //   `username: ${Username_input.value}, password: ${Password_Input.value}`
+          // );
           // når man skal gjøre kall til ubuntu, så må man kalle http://192.168.10.145/Api/v1/Post
           //Må gjøres endringer på nginx
           postData("http://localhost:3002/Api/v1/Post/Login", {
@@ -71,7 +74,6 @@
           Username_input.value = "";
           Password_Input.value = "";
         }
-        console.log("emptyy");
       });
 
       Register_form.addEventListener("submit", (e) => {
@@ -81,9 +83,9 @@
           Register_pwd.value &&
           Register_Email.value
         ) {
-          console.log(
-            `username: ${Register_Login.value}, password: ${Register_pwd.value}, email ${Register_Email.value}`
-          );
+          // console.log(
+          //   `username: ${Register_Login.value}, password: ${Register_pwd.value}, email ${Register_Email.value}`
+          // );
           // når man skal gjøre kall til ubuntu, så må man kalle http://192.168.10.145/Api/v1/Post
           //Må gjøres endringer på nginx
           postData("http://localhost:3002/Api/v1/Post/Register", {
@@ -95,7 +97,6 @@
           Register_pwd.value = "";
           Register_Email.value = "";
         }
-        console.log("emptyy");
       });
     </script>
   </body>
