@@ -11,40 +11,21 @@
   <body>
     <div class="forms">
       <form id="Login_form" action="">
-        <input
-          id="Username_input"
-          placeholder="Username"
-          class="Username_input"
-          autocomplete="off"
-        />
-        <input
-          id="Password_Input"
-          placeholder="Pwd"
-          type="password"
-          class="Password_Input"
-          autocomplete="off"
-        />
+        <input id="Username_input" placeholder="Username" class="Username_input" autocomplete="off" />
+        <input id="Password_Input" placeholder="Pwd" type="password" class="Password_Input" autocomplete="off" />
         <button>Login</button>
       </form>
       <form id="Register_form" class="form" action="">
         <input id="Register_Login" placeholder="Username" autocomplete="off" />
-        <input
-          id="Register_pwd"
-          placeholder="Pwd"
-          type="password"
-          autocomplete="off"
-        />
-        <input
-          id="Register_Email"
-          placeholder="Email"
-          type="email"
-          autocomplete="off"
-        />
+        <input id="Register_pwd" placeholder="Pwd" type="password" autocomplete="off" />
+        <input id="Register_Email" placeholder="Email" type="email" autocomplete="off" />
         <button id="SignUP_btn">Sign up</button>
       </form>
     </div>
 
     <script>
+      let sessionToken;
+      console.log(`sessionToken: ${sessionToken}`);
       const postData = async (endpoint, body) => {
         const response = await fetch(endpoint, {
           headers: { "Content-Type": "application/json" },
@@ -54,6 +35,10 @@
         }).then(async (e) => {
           const responseFromPost = await e.json();
           console.log(responseFromPost);
+          if (responseFromPost.sessionToken) {
+            sessionToken = responseFromPost.sessionToken;
+            document.location.href = `${responseFromPost.url}`;
+          }
         });
       };
       const Login_form = document.getElementById("Login_form");
@@ -78,11 +63,7 @@
 
       Register_form.addEventListener("submit", (e) => {
         e.preventDefault();
-        if (
-          Register_Login.value &&
-          Register_pwd.value &&
-          Register_Email.value
-        ) {
+        if (Register_Login.value && Register_pwd.value && Register_Email.value) {
           // console.log(
           //   `username: ${Register_Login.value}, password: ${Register_pwd.value}, email ${Register_Email.value}`
           // );
@@ -98,6 +79,7 @@
           Register_Email.value = "";
         }
       });
+      console.log(`sessionToken: ${sessionToken}`);
     </script>
   </body>
 </html>

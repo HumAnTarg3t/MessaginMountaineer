@@ -1,22 +1,63 @@
 const dotenv = require("dotenv").config();
+const cors = require("cors");
 const express = require("express");
-const proxy = require("express-http-proxy");
+const { v4: uuidv4 } = require("uuid");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 const app = require("express")();
-//const morgan = require("morgan");
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const port = process.env.PORT || 3001;
-// require("./LoginExpress");
-// import { readFromDB } from "./mongoDB.js";
-const { readFromDB } = require("./MongoDBAssets/mongoDB");
-app.use(morgan("dev"));
+const { readFromDB, updateTableInDB } = require("./MongoDBAssets/mongoDB");
+// app.use(morgan("dev"));
+app.use(cookieParser());
 app.use(express.static("./public/"));
-// app.get("/", (req, res) => {
-//   res.sendFile(__dirname + "/Public/LoginClient.html");
-// });
-//app.use("/", proxy(process.env.DOMAIN_NAME + '/MessagingClient'))
-app.get("/MessagingClient", (req, res) => {
+app.use(
+  cors({
+    origin: ["http://localhost:3002"],
+    methods: "POST",
+  })
+);
+
+app.get("/MessagingClient", async (req, res) => {
+  const userCookieFromCookie = req.cookies.LoginCookie.split(",")[0] || "false";
+  const userNameFromCookie = req.cookies.LoginCookie.split(",")[1] || "false";
+  // console.log(`userName: ${userNameFromCookie}`);
+  // console.log(`userCookie: ${userCookieFromCookie}`);
+  const doesUserAndCookieMatch = await readFromDB(process.env.mongoDB_Client_dev, "SessionTable", {
+    UserName: userNameFromCookie,
+    sessionToken: userCookieFromCookie,
+  });
+
+  if (
+    !doesUserAndCookieMatch ||
+    doesUserAndCookieMatch[0].UserName != userNameFromCookie ||
+    doesUserAndCookieMatch[0].sessionToken != userCookieFromCookie
+  ) {
+    res.status(403).end("No session");
+  }
+
+  // 1. Sjekk at cookie og bruker har noe med hveradnre å gjøre, OK
+  // 2. generer ny token, UUID
+  const newSessionToken = uuidv4();
+
+  // 3. oppdater token i DB
+  updateTableInDB(
+    process.env.mongoDB_Client_dev,
+    "SessionTable",
+    { UserName: userNameFromCookie },
+    {
+      $set: {
+        sessionToken: newSessionToken,
+      },
+    }
+  );
+
+  // 4. Slett gammel token fra client
+  // 5. Send token til bruker, den skal lagres i minne
+  // 6. legg til token og bruker i minne på server, da slipper man å gjøre kall mot db hele tiden.
+  // 7. fortsett med  resten av koden
+
   res.sendFile(__dirname + "/public/MessaginClient.html");
 });
 
@@ -56,29 +97,19 @@ io.on("connection", async (socket) => {
     const userJoinedMessage = `User: ${id} has joined`;
     const userLeftMessage = `User: ${id} left`;
     if (!room && notSendToUsersInArray) {
-      console.log(
-        "Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms"
-      );
-      socket.broadcast
-        .except(usersWithMoreThen2Rooms)
-        .emit("mainRoomToReceive", userJoinedMessage);
+      console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
+      socket.broadcast.except(usersWithMoreThen2Rooms).emit("mainRoomToReceive", userJoinedMessage);
     } else if (room && notSendToUsersInArray) {
       console.log("Sender userJoinedMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userJoinedMessage, room);
     } else if (!room && !notSendToUsersInArray) {
       console.log("Sender UserLeftMsg til alle utenom usersWithMoreThen2Rooms");
-      socket.broadcast
-        .except(usersWithMoreThen2Rooms)
-        .emit("mainRoomToReceive", userLeftMessage);
+      socket.broadcast.except(usersWithMoreThen2Rooms).emit("mainRoomToReceive", userLeftMessage);
     } else if (room && !notSendToUsersInArray) {
       console.log("Sender UserLeftMsg til alle i et room");
       socket.to(room).emit("mainRoomToReceive", userLeftMessage, room);
-      console.log(
-        "Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms"
-      );
-      socket.broadcast
-        .except(usersWithMoreThen2Rooms)
-        .emit("mainRoomToReceive", userJoinedMessage);
+      console.log("Sender userJoinedMsg til alle utenom usersWithMoreThen2Rooms");
+      socket.broadcast.except(usersWithMoreThen2Rooms).emit("mainRoomToReceive", userJoinedMessage);
     }
   };
 
@@ -90,9 +121,7 @@ io.on("connection", async (socket) => {
     // Om "room" ikke er med i meldingen fra klinet, send melding til alle som lytter på mainRoomToSend
     if (room == null) {
       // socket.broadcast.emit sender ikke melding tilbake til den som sendte meldingen først
-      socket.broadcast
-        .except(usersWithMoreThen2Rooms)
-        .emit("mainRoomToReceive", msg);
+      socket.broadcast.except(usersWithMoreThen2Rooms).emit("mainRoomToReceive", msg);
       console.log("Melding sendt i mainRoomToSend");
       // om melding inneholder en room så send melding til kun det roomet
     } else {

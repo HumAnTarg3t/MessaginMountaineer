@@ -1,11 +1,14 @@
 const dotenv = require("dotenv").config();
+// const dotenv = require("dotenv").config({ path: "../.env" });
 const { MongoClient } = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
 const Int32 = require("mongodb").Int32;
 const NumberInt = require("mongodb").NumberInt;
 const Double = require("mongodb").Double;
 
-const __constString = `mongodb+srv://${process.env.mongodbSVC_User}:${process.env.mongodbSVC_Pwd}${process.env.mongoDB_Url}`;
+const __constString = process.env.__constring;
+
+// mongodb+srv://<username>:<password>@messagingmountaineer-de.qqia6g2.mongodb.net/?retryWrites=true&w=majority
 const client = new MongoClient(__constString);
 
 async function readFromDB(dataBase, table_collection, query) {
@@ -50,8 +53,7 @@ async function readFromDB(dataBase, table_collection, query) {
     }
   } finally {
     // Ensures that the client will close when you finish/error
-
-    await client.close();
+    client.close();
   }
 }
 
@@ -59,7 +61,9 @@ async function readFromDB(dataBase, table_collection, query) {
 // readFromDB("sample_guides", "planets", { "surfaceTemperatureC.mean": { $lt: 15 } }).catch(console.dir);
 
 // // om man ikke legger til en opreator i query så tolker den det som en AND
-// readFromDB("sample_guides", "planets", {"surfaceTemperatureC.mean": { $lt: 15 },"surfaceTemperatureC.min": { $gt: -100 },}).catch(console.dir);
+// readFromDB(process.env.mongoDB_Client_dev, "SessionTable", {
+//   UserName: "Alice",
+// }).catch(console.dir);
 
 // // Implicit AND query
 // readFromDB("sample_guides", "planets", {$and: [{ orderFromSun: { $gt: 2 } }, { orderFromSun: { $lt: 5 } }],}).catch(console.dir);
@@ -105,12 +109,7 @@ const docs = {
 // writeToDB(process.env.mongoDB_Client_dev, "UsersTable", docs);
 // readFromDB(process.env.mongoDB_Client_dev, "UsersTable").catch(console.dir);
 
-async function updateTableInDB(
-  dataBase,
-  table_collection,
-  filterQuery,
-  updateDoc
-) {
+async function updateTableInDB(dataBase, table_collection, filterQuery, updateDoc) {
   try {
     // Logger på databasen
     await client.connect();
@@ -157,4 +156,4 @@ async function DelTableInDB(dataBase, table_collection, filterQuery) {
 const filter2 = { _id: ObjectId("63a857bb37c20b5dc0640bdd") };
 // DelTableInDB("sample_guides","comets",filter2)
 
-module.exports = { readFromDB, writeToDB };
+module.exports = { readFromDB, writeToDB, updateTableInDB, DelTableInDB };
